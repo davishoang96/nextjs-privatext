@@ -1,14 +1,10 @@
 import { PrismaClient, Message } from '@prisma/client';
+import { messageDto } from '../dtos/messageDto';
 
 const prisma = new PrismaClient();
 
-export interface createMessageDto {
-  uid: string;
-  content: string;
-}
-
 export const messageRepository = {
-  async createMessage(dto: createMessageDto): Promise<Message> {
+  async createMessage(dto: messageDto): Promise<Message> {
     const newMessage = await prisma.message.create({
       data: {
         uid: dto.uid,
