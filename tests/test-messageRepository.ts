@@ -1,20 +1,18 @@
 import {
     messageRepository,
-    createMessageDto,
   } from "../src/repositories/messageRepository";
   
-  import { Message, PrismaClient } from "@prisma/client";
-  
-  const prisma = new PrismaClient();
+import { Message, PrismaClient } from "@prisma/client";
+import { messageDto } from '../src/dtos/messageDto';
   
 // Mock PrismaClient
 jest.mock('@prisma/client', () => {
     const mockMessageCreate = jest.fn();
     return {
         PrismaClient: jest.fn(() => ({
-        message: {
-            create: mockMessageCreate,
-        },
+            message: {
+                create: mockMessageCreate,
+            },
         })),
     };
 });
@@ -29,7 +27,7 @@ beforeEach(() => {
 
 it('should create a new message and return it', async () => {
     // Arrange: Set up test data and mock behavior
-    const dto: createMessageDto = {
+    const dto: messageDto = {
         uid: 'test-uid',
         content: 'This is a test message',
     };
@@ -49,32 +47,32 @@ it('should create a new message and return it', async () => {
     // Assert: Verify the behavior and output
     expect(prisma.message.create).toHaveBeenCalledTimes(1);
     expect(prisma.message.create).toHaveBeenCalledWith({
-    data: {
-        uid: dto.uid,
-        content: dto.content,
-    },
-    });
-    expect(result).toEqual(mockMessage);
-});
-
-it('should throw an error if Prisma fails', async () => {
-    // Arrange: Mock Prisma to throw an error
-    const dto: createMessageDto = {
-        uid: 'test-uid',
-        content: 'This is a test message',
-    };
-    const error = new Error('Prisma error');
-    (prisma.message.create as jest.Mock).mockRejectedValue(error);
-
-    // Act & Assert: Expect the method to throw the error
-    await expect(messageRepository.createMessage(dto)).rejects.toThrow('Prisma error');
-        expect(prisma.message.create).toHaveBeenCalledTimes(1);
-        expect(prisma.message.create).toHaveBeenCalledWith({
         data: {
             uid: dto.uid,
             content: dto.content,
         },
     });
+    expect(result).toEqual(mockMessage);
 });
+
+it('should throw an error if Prisma fails', async () => {
+        // Arrange: Mock Prisma to throw an error
+        const dto: messageDto = {
+            uid: 'test-uid',
+            content: 'This is a test message',
+        };
+        const error = new Error('Prisma error');
+        (prisma.message.create as jest.Mock).mockRejectedValue(error);
+
+        // Act & Assert: Expect the method to throw the error
+        await expect(messageRepository.createMessage(dto)).rejects.toThrow('Prisma error');
+            expect(prisma.message.create).toHaveBeenCalledTimes(1);
+            expect(prisma.message.create).toHaveBeenCalledWith({
+            data: {
+                uid: dto.uid,
+                content: dto.content,
+            },
+        });
+    });
 });
   
