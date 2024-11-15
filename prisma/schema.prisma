@@ -1,0 +1,15 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite" // Change this to your desired database provider (e.g., postgresql, mysql)
+  url      = env("DATABASE_URL")
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  uid       String   @unique
+  content   String
+  createdAt DateTime @default(now())
+}
