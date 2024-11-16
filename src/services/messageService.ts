@@ -1,3 +1,5 @@
+import crypto from 'crypto'
+ 
 export const messageService = {
     async encryptMessage(message: string): Promise<{ encrypted: string; key: string }> {
         // Generate a random 256-bit (32-byte) encryption key
