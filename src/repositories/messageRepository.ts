@@ -22,4 +22,14 @@ export const messageRepository = {
 		});
 		return message;
 	},
+
+	async deleteMessageByUid(uid: string): Promise<number> {
+		const deletedMessage = await prisma.message.delete({
+			where: {
+				uid,
+			},
+		});
+	
+		return deletedMessage ? 1 : 0;
+	}
 };

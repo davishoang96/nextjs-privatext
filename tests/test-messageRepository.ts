@@ -7,11 +7,13 @@ import { messageDto } from "../src/dtos/messageDto";
 jest.mock("@prisma/client", () => {
 	const mockMessageCreate = jest.fn();
 	const mockFindUnique = jest.fn();
+	const mockDelete = jest.fn();
 	return {
 		PrismaClient: jest.fn(() => ({
 			message: {
 				create: mockMessageCreate,
 				findUnique: mockFindUnique,
+				delete: mockDelete,
 			},
 		})),
 	};
@@ -126,6 +128,61 @@ describe("messageRepository.createMessage", () => {
 				uid: dto.uid,
 				content: dto.content,
 			},
+		});
+	});
+
+	describe("messageRepository.deleteMessageByUid", () => {
+		let prisma: PrismaClient;
+
+		beforeEach(() => {
+			prisma = new PrismaClient(); // Mocked PrismaClient
+			jest.clearAllMocks(); // Reset mocks before each test
+		});
+
+		it("should return 1 when a message is successfully deleted", async () => {
+			// Arrange
+			const uid = "test-uid";
+			const mockDeletedMessage = {
+				id: 1,
+				uid,
+				content: "This is a test message",
+				createdAt: new Date(),
+			};
+
+			(prisma.message.delete as jest.Mock).mockResolvedValue(
+				mockDeletedMessage
+			);
+
+			// Act
+			const result = await messageRepository.deleteMessageByUid(uid);
+
+			// Assert
+			expect(prisma.message.delete).toHaveBeenCalledTimes(1);
+			expect(prisma.message.delete).toHaveBeenCalledWith({
+				where: {
+					uid,
+				},
+			});
+			expect(result).toBe(1);
+		});
+
+		it("should throw an error when no message matches the uid", async () => {
+			// Arrange
+			const uid = "nonexistent-uid";
+			(prisma.message.delete as jest.Mock).mockRejectedValue(
+				new Error("Record not found")
+			);
+
+			// Act & Assert
+			await expect(
+				messageRepository.deleteMessageByUid(uid)
+			).rejects.toThrow("Record not found");
+			expect(prisma.message.delete).toHaveBeenCalledTimes(1);
+			expect(prisma.message.delete).toHaveBeenCalledWith({
+				where: {
+					uid,
+				},
+			});
 		});
 	});
 });
